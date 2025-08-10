@@ -1,88 +1,110 @@
-
 # Floating AI
 
-Floating AI is an AI application that stays with you on your desktop and is an AI assistant which is always available at the tip of your fingers.
+Floating AI is a desktop application that utilizes the Groq API to provide AI-powered query responses. It features a user-friendly interface with interactive text input, Markdown-rendered AI responses, and keyboard shortcuts for efficient workflow.
+
+---
 
 ## Features
 
-- **AI-powered query responses using the Groq API.**
-- **Secure environment variable management with `.env`.**
+- **AI-powered query responses using the Groq API**: Get instant answers to your questions with the help of the Groq API.  
+- **Secure environment variable management with `.env`**: Store your API keys securely using environment variables.  
+- **Interactive Text Input**: Type your queries or commands in the input box, which clears automatically after submission for a smooth workflow.  
+- **Markdown-Rendered AI Responses**: View AI-generated replies with Markdown formatting, including headings, bold/italic text, bullet points, and code blocks.  
 
-- **Interactive Text Input**  
-  A user-friendly input box where you can type your queries or commands. The input automatically clears after submission for smooth workflow.
+### Keyboard Shortcuts:
+- **Enter/Return**: Submit query and get AI response instantly.  
+- **Shift + Enter**: Insert a new line in the input box.  
+- **Type `exit`**: Close the application gracefully.  
+- **Type `clear`**: Clear the output display.  
+- **Type `clear history`**: Clear the conversation history.  
+- **Type `history`**: View the conversation history.
 
-- **Markdown-Rendered AI Responses**  
-  AI-generated replies are displayed with Markdown formatting, including support for headings, bold/italic text, bullet points, and code blocks. Rendered using a styled `QTextBrowser` for clear and readable output.
+- **Copy Button**: Copy the AI output text to the clipboard with a single click.  
 
-- **Keyboard Shortcuts for Efficiency**  
-  - **Enter/Return:** Submit query and get AI response instantly.  
-  - **Escape (Esc):** Close the application quickly.  
-  - **F1:** Copy the AI output text to the clipboard with a single keypress.
-
-- **Clipboard Integration**  
-  Easily copy the AI’s response text to your system clipboard using the F1 key for effortless sharing or pasting elsewhere.
-
-- **Clean Exit Command**  
-  Type `exit` in the input box to gracefully close the application.
-
-- **Auto Focus on Launch**  
-  The input box is automatically focused when the application starts, so you can start typing immediately without extra clicks.
+- **Integrated AI-memory**: The AI will remember previous conversations to avoid repetitive queries.  
 
 
+---
+
+## Upcoming Features
+
+- **Custom Rules**: Set custom rules for the AI to tailor responses according to your preferences.  
+
+
+---
 
 ## Installation
 
-Install my-project with npm
+To run the application, ensure you have Python and the required libraries installed.  
+You can install the libraries using:
 
 ```bash
-  npm install my-project
-  cd my-project
-```
-    
-## Usage/Examples
-
-```javascript
-import Component from 'my-project'
-
-function App() {
-  return <Component />
-}
+pip install -r requirements.txt
+python3 main.py 
 ```
 
+### Basic Commands
+
+| Key / Command   | Action                                           |
+|-----------------|--------------------------------------------------|
+| **Enter / Return** | Submit query and get AI response instantly.     |
+| **Shift + Enter**  | Insert a new line in the input box.              |
+| **F1**             | Copy AI output to clipboard.                    |
+| **exit**           | Close the application gracefully.               |
+| **clear**          | Clear the output display.                        |
+| **clear history**  | Clear the conversation history.                  |
+| **history**        | View the conversation history.                   |
+
+---
 
 ## Demo
+*(Insert a GIF or link to the demo here)*
 
-Insert gif or link to demo
-
+---
 
 ## Authors
+- **Your GitHub Username**
 
-- [@octokatherine](https://www.github.com/octokatherine)
-
+---
 
 ## Documentation
+*(Add a link to detailed documentation if available)*
 
-[Documentation](https://linktodocumentation)
-
-
+---
 
 ## Screenshots
+*(Add screenshots or mockups of the UI here)*
 
-![App Screenshot](https://via.placeholder.com/468x300?text=App+Screenshot+Here)
-
+---
 
 ## Optimizations
+- Minimal resource usage with lightweight UI components.  
+- Consistent coding style for easy maintainability.  
+- Keyboard shortcuts for improved efficiency.  
+- Secure `.env` file handling for API keys.  
 
-What optimizations did you make in your code? E.g. refactors, performance improvements, accessibility
-
+---
 
 ## FAQ
 
-#### Question 1
+**Q: How do I run the application?**  
+A:  
+```bash
+python main.py
+```
+**Q: How do I clear the conversation history?**  
+A: Type `clear history` in the input box to erase all stored queries and responses.
 
-Answer 1
+**Q: How do I view the conversation history?**  
+A: Type `history` in the input box to display all past interactions in the output display.
 
-#### Question 2
+**Q: How do I copy the AI output?**  
+A: Press `F1` on your keyboard to instantly copy the latest AI response to your clipboard.
 
-Answer 2
+**Q: How do I close the application?**  
+A: Type `exit` in the input box or press the `Esc` key.
 
+---
+
+## License
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
