@@ -1,3 +1,5 @@
+## important_text
+I am working on a project and this is my main.py file 
 from Client import ai_response
 import sys
 import markdown
@@ -292,3 +294,214 @@ if __name__ == "__main__":
     window = MainWindow()
     window.show()
     sys.exit(app.exec_())
+
+this is my Client.py file 
+# Imports
+from groq import Groq
+from dotenv import load_dotenv
+import os
+
+# Configuring API key
+load_dotenv()
+api_key = os.getenv("API_TOKEN")
+
+# Client
+client = Groq(
+    api_key=api_key,
+)
+
+"""
+USAGE:
+To get response from the AI model
+
+from Client import ai_response
+user_query = input("Enter here: ")
+output = ai_response(user_query)
+print(output)
+"""
+
+RULES = """
+You must strictly follow these rules for every response:
+
+1. **Format**: Always respond in valid, well-structured Markdown.
+2. **Clarity**: Use plain, simple language — avoid jargon unless defining it.
+3. **Structure**: Organize with headers (#, ##), subheaders, bullet points, and numbered lists where helpful.
+4. **Highlighting**: Use **bold** or *italic* for emphasis on important terms.
+5. **Conciseness**: Keep answers to the point — no filler or repetition.
+6. **Grammar & Tone**: Use correct grammar, spelling, punctuation, and maintain a consistent, professional, and friendly tone.
+7. **Readability**: Use short paragraphs and line breaks for better flow.
+8. **Examples**: Provide relevant examples, definitions, or tables when useful.
+9. **Voice**: Use active voice instead of passive voice.
+10. **Context**: Base your response on the provided chat history and personality settings.
+11. **Focus**: Only answer the user’s query — no extra commentary or unrelated information.
+"""
+
+def get_personality():
+    try:
+        with open("features/personality.txt", "r") as f:
+            return f.read()
+    except:
+        return ""
+
+def get_chat_history():
+    try:
+        with open("features/history.txt", "r") as f:
+            return f.read()
+    except:
+        return ""
+
+def get_memory():
+    try:
+        with open("features/memory.txt", "r") as f:
+            return f.read()
+    except:
+        return ""
+
+def ai_response(user_query):
+    personality = get_personality()
+    chat_history = get_chat_history()
+    memory = get_memory()
+
+    prompt = f"""
+
+Information you don't need to share with user until neccessary ->
+{RULES}
+
+Personality:
+{personality}
+
+Chat History:
+{chat_history}
+
+Memory:
+{memory}
+
+User Query:
+{user_query}
+"""
+
+    chat_completion = client.chat.completions.create(
+        messages=[
+            {"role": "system", "content": "You are an AI assistant that follows rules exactly and outputs in Markdown."},
+            {"role": "user", "content": prompt}
+        ],
+        model="llama-3.3-70b-versatile",
+    )
+    return chat_completion.choices[0].message.content
+
+and this is my readme.md file
+
+# Floating AI
+
+Floating AI is a desktop application that utilizes the Groq API to provide AI-powered query responses. It features a user-friendly interface with interactive text input, Markdown-rendered AI responses, and keyboard shortcuts for efficient workflow.
+
+---
+
+## Features
+
+- **AI-powered query responses using the Groq API**: Get instant answers to your questions with the help of the Groq API.  
+- **Secure environment variable management with `.env`**: Store your API keys securely using environment variables.  
+- **Interactive Text Input**: Type your queries or commands in the input box, which clears automatically after submission for a smooth workflow.  
+- **Markdown-Rendered AI Responses**: View AI-generated replies with Markdown formatting, including headings, bold/italic text, bullet points, and code blocks.  
+
+### Keyboard Shortcuts:
+- **Enter/Return**: Submit query and get AI response instantly.  
+- **Shift + Enter**: Insert a new line in the input box.  
+- **Type `exit`**: Close the application gracefully.  
+- **Type `clear`**: Clear the output display.  
+- **Type `clear history`**: Clear the conversation history.  
+- **Type `history`**: View the conversation history.
+
+- **Copy Button**: Copy the AI output text to the clipboard with a single click.  
+
+- **Integrated AI-memory**: The AI will remember previous conversations to avoid repetitive queries.  
+
+
+---
+
+## Upcoming Features
+
+- **Custom Rules**: Set custom rules for the AI to tailor responses according to your preferences.  
+
+
+---
+
+## Installation
+
+To run the application, ensure you have Python and the required libraries installed.  
+You can install the libraries using:
+
+```bash
+pip install -r requirements.txt
+python3 main.py 
+```
+
+### Basic Commands
+
+| Key / Command   | Action                                           |
+|-----------------|--------------------------------------------------|
+| **Enter / Return** | Submit query and get AI response instantly.     |
+| **Shift + Enter**  | Insert a new line in the input box.              |
+| **F1**             | Copy AI output to clipboard.                    |
+| **exit**           | Close the application gracefully.               |
+| **clear**          | Clear the output display.                        |
+| **clear history**  | Clear the conversation history.                  |
+| **history**        | View the conversation history.                   |
+
+---
+
+## Demo
+*(Insert a GIF or link to the demo here)*
+
+---
+
+## Authors
+- **Your GitHub Username**
+
+---
+
+## Documentation
+*(Add a link to detailed documentation if available)*
+
+---
+
+## Screenshots
+*(Add screenshots or mockups of the UI here)*
+
+---
+
+## Optimizations
+- Minimal resource usage with lightweight UI components.  
+- Consistent coding style for easy maintainability.  
+- Keyboard shortcuts for improved efficiency.  
+- Secure `.env` file handling for API keys.  
+
+---
+
+## FAQ
+
+**Q: How do I run the application?**  
+A:  
+```bash
+python main.py
+```
+**Q: How do I clear the conversation history?**  
+A: Type `clear history` in the input box to erase all stored queries and responses.
+
+**Q: How do I view the conversation history?**  
+A: Type `history` in the input box to display all past interactions in the output display.
+
+**Q: How do I copy the AI output?**  
+A: Press `F1` on your keyboard to instantly copy the latest AI response to your clipboard.
+
+**Q: How do I close the application?**  
+A: Type `exit` in the input box or press the `Esc` key.
+
+---
+
+## License
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+
+
+Please modify my readme.md file and add everything as much as you can
+
