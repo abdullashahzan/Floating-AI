@@ -1,7 +1,12 @@
 
 # Floating AI
 
-Floating AI is an AI application that stays with you on your desktop and is available at the tip of your fingers.
+Floating AI is an AI application that stays with you on your desktop and is an AI assistant which is always available at the tip of your fingers.
+
+## Features
+
+- AI-powered query responses using the Groq API.
+- Secure environment variable management with `.env`.
 
 
 ## Installation
@@ -38,13 +43,6 @@ Insert gif or link to demo
 
 [Documentation](https://linktodocumentation)
 
-
-## Features
-
-- Light/dark mode toggle
-- Live previews
-- Fullscreen mode
-- Cross platform
 
 
 ## Screenshots
