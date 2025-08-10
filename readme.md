@@ -5,8 +5,29 @@ Floating AI is an AI application that stays with you on your desktop and is an A
 
 ## Features
 
-- AI-powered query responses using the Groq API.
-- Secure environment variable management with `.env`.
+- **AI-powered query responses using the Groq API.**
+- **Secure environment variable management with `.env`.**
+
+- **Interactive Text Input**  
+  A user-friendly input box where you can type your queries or commands. The input automatically clears after submission for smooth workflow.
+
+- **Markdown-Rendered AI Responses**  
+  AI-generated replies are displayed with Markdown formatting, including support for headings, bold/italic text, bullet points, and code blocks. Rendered using a styled `QTextBrowser` for clear and readable output.
+
+- **Keyboard Shortcuts for Efficiency**  
+  - **Enter/Return:** Submit query and get AI response instantly.  
+  - **Escape (Esc):** Close the application quickly.  
+  - **F1:** Copy the AI output text to the clipboard with a single keypress.
+
+- **Clipboard Integration**  
+  Easily copy the AI’s response text to your system clipboard using the F1 key for effortless sharing or pasting elsewhere.
+
+- **Clean Exit Command**  
+  Type `exit` in the input box to gracefully close the application.
+
+- **Auto Focus on Launch**  
+  The input box is automatically focused when the application starts, so you can start typing immediately without extra clicks.
+
 
 
 ## Installation
