@@ -1,2 +1,7 @@
-print("hello, world!")
-print("bye!")
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+api_key = os.getenv("API_TOKEN")
+print("Program ran successfully!")
