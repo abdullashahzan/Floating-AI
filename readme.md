@@ -103,7 +103,7 @@ A: Type `history` in the input box to display all past interactions in the outpu
 A: Type `set personality: <personality>` in the input box to set your AI chatbot's personality.
 
 **Q: How do I close the application?**  
-A: Type `exit` in the input box or press the `Esc` key.
+A: Type `exit` in the input box.
 
 ---
 
