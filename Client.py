@@ -48,14 +48,16 @@ def get_personality():
 def get_chat_history():
     try:
         with open("features/history.txt", "r") as f:
-            return f.read()
+            history = f.read()
+            return history[-5000:]
     except:
         return ""
 
 def get_memory():
     try:
         with open("features/memory.txt", "r") as f:
-            return f.read()
+            memory = f.read()
+            return memory[-5000:]
     except:
         return ""
 

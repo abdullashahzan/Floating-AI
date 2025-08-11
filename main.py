@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QTextBrowser,
     QTextEdit,
+    QPushButton
 )
 from PyQt5.QtCore import Qt, QObject, pyqtSignal, QThread
 import html
@@ -14,12 +15,6 @@ import os
 
 CUSTOM_CSS = """
 <style>
-.copy-button {
-    color: #fff;
-    cursor: pointer;
-    border-radius: 5px;
-    padding: 5px 10px;
-}
 body {
     font-family: 'Monaco', monospace;
     font-size: 14px;
@@ -44,22 +39,18 @@ ul {
 </style>
 """
 
-# Worker object that runs in a QThread and emits 'finished' when done.
-# NOTE: finished now emits (query, result) so UI thread can persist both.
 class AIWorker(QObject):
-    finished = pyqtSignal(str, str)  # emits (query, output)
+    finished = pyqtSignal(str, str)
 
     def __init__(self, query):
         super().__init__()
         self.query = query
 
     def run(self):
-        """Run in worker thread — call the blocking ai_response and emit result."""
         try:
             result = str(ai_response(self.query))
         except Exception as e:
             result = f"**Error:** {str(e)}"
-        # Emit both query and result so main thread can write history properly
         self.finished.emit(self.query, result)
 
 
@@ -69,11 +60,9 @@ class CustomTextEdit(QTextEdit):
         self.parent = parent
 
     def keyPressEvent(self, event):
-        # Shift+Enter => newline, Enter => submit
         if event.modifiers() == Qt.ShiftModifier and event.key() == Qt.Key_Return:
             self.insertPlainText("\n")
         elif event.key() in (Qt.Key_Return, Qt.Key_Enter):
-            # Delegate submit to parent (MainWindow)
             if self.parent:
                 self.parent.handle_submit()
         else:
@@ -94,56 +83,49 @@ class MainWindow(QWidget):
         self.output_display.setOpenLinks(False)
         self.layout.addWidget(self.output_display)
 
+        # --- NEW: Real Copy Button ---
+        self.copy_button = QPushButton("Copy Output")
+        self.copy_button.clicked.connect(self.copy_output_to_clipboard)
+        self.layout.addWidget(self.copy_button)
+
         self.text_input = CustomTextEdit(self)
         self.text_input.setFixedHeight(70)
         self.text_input.setFocus()
         self.text_input.setPlaceholderText("Type here...")
         self.layout.addWidget(self.text_input)
 
-        # Keep references to current worker/thread so they are not GC'ed early
         self._worker_thread = None
         self._worker = None
 
         self.load_history()
 
+    def copy_output_to_clipboard(self):
+        """Copies the plain text of the output display to clipboard."""
+        clipboard = QApplication.clipboard()
+        clipboard.setText(self.output_display.toPlainText())
+
     def set_markdown_output(self, output_display, md_text: str):
-        # Convert Markdown to HTML and add custom CSS
-        # Escape the text first to avoid accidental HTML injection from history
-        # (we assume ai_response returns Markdown — still escape then run markdown to be safe)
-        # If ai_response returns HTML already, you can skip the escaping step.
         safe_md = md_text
         try:
-            # convert markdown to html
             html_content = markdown.markdown(safe_md, extensions=["fenced_code", "codehilite"])
         except Exception:
-            # fallback: escape and wrap in <pre>
             html_content = f"<pre>{html.escape(safe_md)}</pre>"
 
-        # Minimal copy button kept (QTextBrowser won't run JS)
-        copy_button_html = """
-        <div><button class="copy-button">Copy</button></div>
-        """
-
-        html_with_css = f"<html><head>{CUSTOM_CSS}</head><body>{copy_button_html}{html_content}</body></html>"
+        html_with_css = f"<html><head>{CUSTOM_CSS}</head><body>{html_content}</body></html>"
         output_display.setHtml(html_with_css)
 
     def analyze_text(self, text):
-        """Analyze the text and decide if it's worth remembering."""
-        # Define important keywords or phrases
         important_keywords = ["remember", "note", "important", "save", "store"]
-        # Check if the text contains any important keywords
         lowered = text.lower()
         for keyword in important_keywords:
             if keyword in lowered:
                 return True
-        # Check if the text is a question or a significant declarative statement (heuristic)
         stripped = text.strip()
         if stripped.endswith("?") or len(stripped.split()) > 6:
             return True
         return False
 
     def save_to_memory(self, key, text):
-        """Simple memory persistence: append to features/memory.txt with a key."""
         try:
             os.makedirs(os.path.dirname("features/memory.txt"), exist_ok=True)
         except Exception:
@@ -152,7 +134,6 @@ class MainWindow(QWidget):
             with open("features/memory.txt", "a", encoding="utf-8") as f:
                 f.write(f"## {key}\n{text}\n\n")
         except Exception:
-            # Non-fatal: don't crash UI
             pass
 
     def load_memory(self):
@@ -215,7 +196,6 @@ class MainWindow(QWidget):
             return
 
         if lower_q.startswith("set personality:"):
-            # robust split — keep everything after the first colon
             parts = query.split(":", 1)
             if len(parts) > 1:
                 personality_settings = parts[1].strip()
@@ -230,49 +210,34 @@ class MainWindow(QWidget):
             self.text_input.clear()
             return
 
-        # Optionally analyze and save short important notes to memory
         try:
             if self.analyze_text(query):
                 self.save_to_memory("important_text", query)
-                # don't interrupt user's flow — show a subtle notice
-                # We'll still proceed to get an AI response
-                # (If you prefer to *only* save and not query AI, return here)
         except Exception:
             pass
 
-        # At this point: normal AI query — show loading, then launch worker thread
         self.set_markdown_output(self.output_display, "**Loading response...**")
         self.text_input.clear()
 
-        # Create worker and thread
         worker = AIWorker(query)
         thread = QThread()
-
-        # Move worker to thread and setup signals
         worker.moveToThread(thread)
         thread.started.connect(worker.run)
-        # Connect finished(query, output) to handler
-        worker.finished.connect(self.on_ai_response)  # UI update runs in main thread
+        worker.finished.connect(self.on_ai_response)
         worker.finished.connect(thread.quit)
         worker.finished.connect(worker.deleteLater)
         thread.finished.connect(thread.deleteLater)
 
-        # Keep references so they don't get GC'ed while running
         self._worker_thread = thread
         self._worker = worker
-
         thread.start()
 
     def on_ai_response(self, query: str, output: str):
-        """Called in main thread via signal when worker finishes."""
-        # Update the display and append to history
         self.set_markdown_output(self.output_display, output)
         try:
-            # Append to history file (include the query)
             with open("features/history.txt", "a", encoding="utf-8") as f:
                 f.write(f"**Query:** {query}\n{output}\n\n")
         except Exception:
-            # Non-fatal — just don't crash the UI if history write fails
             pass
 
     def load_history(self):

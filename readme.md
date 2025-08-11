@@ -78,11 +78,6 @@ python3 main.py
 
 ---
 
-## Documentation
-*(Add a link to detailed documentation if available)*
-
----
-
 ## Screenshots
 *(Add screenshots or mockups of the UI here)*
 
@@ -93,12 +88,12 @@ python3 main.py
 **Q: How do I run the application?**  
 A:  
 ```bash
-python main.py
+python3 main.py
 ```
 **Q: How do I clear the conversation history?**  
 A: Type `clear history` in the input box to erase all stored queries and responses.
 
-**Q: Can I erase memory of AI?**  
+**Q: Can I erase memory of AI? How can I view stored memory?**  
 A: Type `clear memory` in the input box to erase all memory or type `memory` to view stored memory.
 
 **Q: How do I view the conversation history?**  
@@ -106,9 +101,6 @@ A: Type `history` in the input box to display all past interactions in the outpu
 
 **Q: How do I my AI a personality?**  
 A: Type `set personality: <personality>` in the input box to set your AI chatbot's personality.
-
-**Q: How do I copy the AI output?**  
-A: Press `F1` on your keyboard to instantly copy the latest AI response to your clipboard.
 
 **Q: How do I close the application?**  
 A: Type `exit` in the input box or press the `Esc` key.
