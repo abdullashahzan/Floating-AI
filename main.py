@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import Qt, QObject, pyqtSignal, QThread
 import html
-import os
+import os, string
 
 CUSTOM_CSS = """
 <style>
@@ -119,7 +119,8 @@ class MainWindow(QWidget):
         # Ensure features directory exists
         os.makedirs("features", exist_ok=True)
 
-        self.load_history()
+        self.set_markdown_output(self.output_display, "Hey, there! How can I help you today?")
+
 
     def copy_output_to_clipboard(self):
         clipboard = QApplication.clipboard()
@@ -137,40 +138,24 @@ class MainWindow(QWidget):
         output_display.setHtml(html_with_css)
 
     def analyze_text(self, user_text):
-        """
-        Analyze user_text and current memory.
-        Return string to save in memory or None if nothing to save.
-        """
         important_keywords = ["remember", "note", "important", "save", "store"]
         lowered = user_text.lower()
-
-        # Load current memory
         try:
             with open("features/memory.txt", "r", encoding="utf-8") as f:
                 current_memory = f.read()
         except FileNotFoundError:
             current_memory = ""
-
-        # If user text contains keywords, consider saving
         if any(keyword in lowered for keyword in important_keywords):
-            # You can customize what to save; for example, just the user text
+            self.save_to_memory(user_text.strip())
             return user_text.strip()
-
-        # If user text looks like a question or a longer statement, maybe save summary?
         if user_text.strip().endswith("?") or len(user_text.split()) > 6:
-            # Example: Combine with existing memory (you can customize this)
-            combined_memory = current_memory + "\n" + user_text.strip()
-            return combined_memory.strip()
-
-        # Otherwise, no save needed
+            self.save_to_memory(user_text.strip())
+            return user_text.strip()
         return None
 
-    def save_to_memory(self, key, text):
-        try:
-            with open("features/memory.txt", "a", encoding="utf-8") as f:
-                f.write(f"## {key}\n{text}\n\n")
-        except Exception as e:
-            print(f"Error saving memory: {e}")
+    def save_to_memory(self, text):
+        with open("features/memory.txt", "a", encoding="utf-8") as f:
+            f.write(text + "\n")
 
     def load_memory(self):
         try:
@@ -301,7 +286,11 @@ class MainWindow(QWidget):
         self.set_markdown_output(self.output_display, output)
         try:
             with open("features/history.txt", "a", encoding="utf-8") as f:
-                f.write(f"**Query:** {query}\n{output}\n\n")
+                query = query.lower().translate(str.maketrans("", "", string.punctuation))
+                query = " ".join(query.split())
+                output = output.lower().translate(str.maketrans("", "", string.punctuation))
+                output = " ".join(output.split())
+                f.write(f"User: {query} Your response: {output}")
         except Exception as e:
             print(f"Error saving history: {e}")
 
@@ -309,13 +298,9 @@ class MainWindow(QWidget):
         try:
             with open("features/history.txt", "r", encoding="utf-8") as f:
                 history = f.read()
-            if not history.strip():
-                self.set_markdown_output(self.output_display, "Fresh start! How can I help you?")
-            else:
-                self.set_markdown_output(self.output_display, "Hey there! How can I help you?")
+                self.set_markdown_output(self.output_display, history)
         except FileNotFoundError:
             self.set_markdown_output(self.output_display, "**No conversation history found.**")
-
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

@@ -47,12 +47,12 @@ def get_personality():
     except:
         return ""
 
-def get_chat_history():
+def get_chat_history(maxchars=5000):
     try:
         with open("features/history.txt", "r") as f:
             history = f.read()
-        return history
-    except:
+            return history[-maxchars:]
+    except Exception as e:
         return ""
 
 def get_memory():
@@ -68,18 +68,14 @@ def ai_response(user_query):
     chat_history = get_chat_history()
     memory = get_memory()
 
-    # Summarize chat history to reduce token usage
-    chat_history_summary = summarize_chat_history(chat_history)
-
     prompt = f"""
-Information you don't need to share with user until neccessary ->
 {RULES}
 
 Your Personality:
 {personality}
 
-Chat History Summary:
-{chat_history_summary}
+Chat History:
+{chat_history}
 
 Your Memory:
 {memory}
@@ -96,8 +92,3 @@ User Query:
         model=AVAILABLE_MODELS[0],
     )
     return chat_completion.choices[0].message.content
-
-def summarize_chat_history(chat_history):
-    lines = chat_history.splitlines()
-    summary = "\n".join(lines[-50:])
-    return summary
