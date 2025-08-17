@@ -1,5 +1,5 @@
 # main.py
-from Client import ai_response
+from Client import ai_response, AVAILABLE_MODELS
 import sys
 import markdown
 from PyQt5.QtWidgets import (
@@ -10,13 +10,13 @@ from PyQt5.QtWidgets import (
     QTextEdit,
     QPushButton,
     QHBoxLayout,
+    QComboBox,
 )
 from PyQt5.QtCore import Qt, QObject, pyqtSignal, QThread
 import html
 import os
 import string
 import subprocess
-
 
 CUSTOM_CSS = """
 <style>
@@ -52,13 +52,14 @@ ul {
 class AIWorker(QObject):
     finished = pyqtSignal(str, str)
 
-    def __init__(self, query):
+    def __init__(self, query, model_index=0):
         super().__init__()
         self.query = query
+        self.model_index = model_index
 
     def run(self):
         try:
-            result = str(ai_response(self.query))
+            result = str(ai_response(self.query, self.model_index))
         except Exception as e:
             result = f"**Error:** {str(e)}"
         self.finished.emit(self.query, result)
@@ -90,7 +91,7 @@ class MainWindow(QWidget):
         super().__init__()
 
         self.setWindowTitle("Floating AI")
-        self.resize(500, 400)
+        self.resize(500, 450)
 
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
@@ -104,15 +105,20 @@ class MainWindow(QWidget):
         self.copy_button.clicked.connect(self.copy_output_to_clipboard)
         self.layout.addWidget(self.copy_button)
 
+        # Text input
         self.text_input = CustomTextEdit(self)
         self.text_input.setFixedHeight(70)
         self.text_input.setFocus()
         self.text_input.setPlaceholderText("Type here...")
         self.layout.addWidget(self.text_input)
 
+        # Model selection dropdown
+        self.model_selector = QComboBox()
+        self.model_selector.addItems([model.split("/")[-1] for model in AVAILABLE_MODELS])
+        self.layout.addWidget(self.model_selector)
+
         # Buttons layout: History, Personality
         button_layout = QHBoxLayout()
-
         self.history_button = QPushButton("History")
         self.history_button.clicked.connect(self.load_history)
         button_layout.addWidget(self.history_button)
@@ -188,6 +194,10 @@ class MainWindow(QWidget):
             return
 
         lower_q = query.lower()
+
+        # -----------------------------
+        # Commands
+        # -----------------------------
         if lower_q == "exit":
             self.close()
             return
@@ -197,41 +207,45 @@ class MainWindow(QWidget):
             self.text_input.clear()
             return
 
-        if lower_q == "clear history":
+        if lower_q == "history":
+            self.load_history()
+            self.text_input.clear()
+            return
+
+        if lower_q == "memory":
             try:
-                with open("features/history.txt", "w", encoding="utf-8") as f:
-                    f.write("")
+                with open("features/memory.txt", "r", encoding="utf-8") as f:
+                    memory_content = f.read()
+                self.set_markdown_output(
+                    self.output_display,
+                    memory_content if memory_content.strip() else "**Memory is empty.**"
+                )
             except Exception as e:
-                print(f"Error clearing history: {e}")
+                self.set_markdown_output(self.output_display, f"**Error reading memory:** {e}")
+            self.text_input.clear()
+            return
+
+        if lower_q == "clear history":
+            with open("features/history.txt", "w", encoding="utf-8") as f:
+                f.write("")
             self.set_markdown_output(self.output_display, "**History cleared. ✅**")
             self.text_input.clear()
             return
 
         if lower_q == "clear memory":
-            try:
-                with open("features/memory.txt", "w", encoding="utf-8") as f:
-                    f.write("")
-            except Exception as e:
-                print(f"Error clearing memory: {e}")
+            with open("features/memory.txt", "w", encoding="utf-8") as f:
+                f.write("")
             self.set_markdown_output(self.output_display, "**Memory cleared. ✅**")
             self.text_input.clear()
             return
 
         if lower_q == "clear all":
-            try:
-                with open("features/history.txt", "w", encoding="utf-8") as f:
-                    f.write("")
-                with open("features/memory.txt", "w", encoding="utf-8") as f:
-                    f.write("")
-            except Exception as e:
-                print(f"Error clearing all: {e}")
+            with open("features/history.txt", "w", encoding="utf-8") as f:
+                f.write("")
+            with open("features/memory.txt", "w", encoding="utf-8") as f:
+                f.write("")
             self.output_display.clear()
             self.set_markdown_output(self.output_display, "**All history and memory cleared. ✅**")
-            self.text_input.clear()
-            return
-
-        if lower_q == "history":
-            self.load_history()
             self.text_input.clear()
             return
 
@@ -239,24 +253,23 @@ class MainWindow(QWidget):
             parts = query.split(":", 1)
             if len(parts) > 1:
                 personality_settings = parts[1].strip()
-                try:
-                    with open("features/personality.txt", "w", encoding="utf-8") as f:
-                        f.write(personality_settings)
-                    self.set_markdown_output(self.output_display, "**Personality settings saved successfully!**")
-                except Exception as e:
-                    self.set_markdown_output(self.output_display, f"**Error saving personality:** {e}")
+                with open("features/personality.txt", "w", encoding="utf-8") as f:
+                    f.write(personality_settings)
+                self.set_markdown_output(self.output_display, "**Personality settings saved successfully!**")
             else:
                 self.set_markdown_output(self.output_display, "**Error: No personality provided.**")
             self.text_input.clear()
             return
 
-        # Save to memory (compact form)
+        # -----------------------------
+        # AI Response
+        # -----------------------------
         self.save_to_memory(f"User: {query}")
-
         self.set_markdown_output(self.output_display, "**Loading response...**")
         self.text_input.clear()
 
-        worker = AIWorker(query)
+        model_index = self.model_selector.currentIndex()
+        worker = AIWorker(query, model_index)
         thread = QThread()
         worker.moveToThread(thread)
         thread.started.connect(worker.run)
@@ -272,13 +285,11 @@ class MainWindow(QWidget):
     def on_ai_response(self, query: str, output: str):
         self.set_markdown_output(self.output_display, output)
         try:
-            # Save full history (human readable)
             with open("features/history.txt", "a", encoding="utf-8") as f:
                 f.write(f"User: {query}\n\n#AI: {output}\n\n")
         except Exception as e:
             print(f"Error saving history: {e}")
 
-        # Save compact memory version
         self.save_to_memory(f"AI: {output}")
 
 

@@ -1,4 +1,4 @@
-# Imports
+# Client.py
 from groq import Groq
 from dotenv import load_dotenv
 import os
@@ -8,21 +8,12 @@ load_dotenv()
 api_key = os.getenv("API_TOKEN")
 
 # Client
-client = Groq(
-    api_key=api_key,
-)
+client = Groq(api_key=api_key)
 
-"""
-USAGE:
-To get response from the AI model
-
-from Client import ai_response
-user_query = input("Enter here: ")
-output = ai_response(user_query)
-print(output)
-"""
-
-AVAILABLE_MODELS = ['meta-llama/llama-4-scout-17b-16e-instruct','meta-llama/llama-guard-4-12b','meta-llama/llama-prompt-guard-2-22m','meta-llama/llama-prompt-guard-2-86m','moonshotai/kimi-k2-instruct']
+AVAILABLE_MODELS = [
+    'meta-llama/llama-4-scout-17b-16e-instruct',
+    'moonshotai/kimi-k2-instruct'
+]
 
 RULES = """
 You must strictly follow these rules for every response:
@@ -36,7 +27,7 @@ You must strictly follow these rules for every response:
 7. **Readability**: Use short paragraphs and line breaks for better flow.
 8. **Examples**: Provide relevant examples, definitions, or tables when useful.
 9. **Voice**: Use active voice instead of passive voice.
-10. **Context**: Base your response on the provided chat history, your in-build persistant memory and personality settings.
+10. **Context**: Base your response on the provided chat history, your in-build persistent memory and personality settings.
 11. **Focus**: Only answer the user’s query — no extra commentary or unrelated information.
 """
 
@@ -49,13 +40,17 @@ def get_personality():
 
 def get_memory(maxchars=10000):
     try:
-        with open("features/memory.txt", "r") as f:
+        with open("features/memory.txt", "r", encoding="utf-8") as f:
             memory = f.read()
         return memory[-maxchars:]
     except:
         return ""
 
-def ai_response(user_query):
+def ai_response(user_query, model_index=0):
+    """
+    Generate AI response using the selected model.
+    model_index: index in AVAILABLE_MODELS (default 0)
+    """
     personality = get_personality()
     memory = get_memory()
 
@@ -72,6 +67,10 @@ User Query:
 {user_query}
 """
 
+    # Ensure model index is valid
+    if model_index < 0 or model_index >= len(AVAILABLE_MODELS):
+        model_index = 0
+
     chat_completion = client.chat.completions.create(
         messages=[
             {"role": "system", "content": "You are an AI assistant that follows rules exactly and outputs in Markdown."},
@@ -79,6 +78,6 @@ User Query:
         ],
         max_tokens=1000,
         temperature=0.7,
-        model=AVAILABLE_MODELS[0],
+        model=AVAILABLE_MODELS[model_index],
     )
     return chat_completion.choices[0].message.content.strip()

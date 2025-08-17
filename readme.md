@@ -1,6 +1,6 @@
 # 🧠 Floating AI — Your Persistent AI Chat with Memory
 
-**Floating AI** is a desktop application built with **Python** + **PyQt5** that allows you to chat with an AI assistant, keep a conversation history, save important notes to memory, and quickly recall or clear them on demand.  
+**Floating AI** is a desktop application built with **Python** + **PyQt5** that allows you to chat with an AI assistant, keep a conversation history, save important notes to memory, and quickly recall or clear them on demand.
 It’s lightweight, fast, and easy to use.
 
 ---
@@ -11,18 +11,19 @@ It’s lightweight, fast, and easy to use.
 * **Markdown Output** — Supports formatted text, code blocks, and lists.
 * **Persistent Memory** — Save important notes automatically or on command.
 * **Memory Management**
+
   * `memory` → Displays all saved notes.
   * `clear memory` → Deletes all saved notes.
 * **Conversation History**
+
   * `history` → Displays your past conversations.
   * `clear history` → Erases conversation logs.
+* **Model Selection** — Choose from multiple AI models using the dropdown before sending a query.
 * **Clipboard Copy** — Press the **Copy Output** button to copy AI responses instantly.
 * **Custom Personality** — Use `set personality: ...` to adjust AI behavior.
 * **Minimalist UI** — Focus on chatting without distractions.
 * **Automatic Memory Saving** — Important notes are saved automatically when you type keywords like `remember`, `note`, `important`, `save`, or `store`.
 * **Clear All** — Use `clear all` to delete both conversation history and memory.
-
-> **Note:** The screen context feature has been removed in this version.
 
 ---
 
@@ -111,7 +112,10 @@ MIT License — free to modify and distribute.
 
 ## 🙌 Credits
 
-* Built by **[Abdulla Shahzan]**
+* Built by **\[Abdulla Shahzan]**
 * PyQt5 for UI
 * Markdown for rendering responses
 * AI magic courtesy of your favorite LLM API
+* Model selection integration for multiple AI backends
+
+---
