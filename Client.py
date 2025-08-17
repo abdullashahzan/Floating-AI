@@ -47,25 +47,16 @@ def get_personality():
     except:
         return ""
 
-def get_chat_history(maxchars=5000):
-    try:
-        with open("features/history.txt", "r") as f:
-            history = f.read()
-            return history[-maxchars:]
-    except Exception as e:
-        return ""
-
-def get_memory():
+def get_memory(maxchars=10000):
     try:
         with open("features/memory.txt", "r") as f:
             memory = f.read()
-        return memory
+        return memory[-maxchars:]
     except:
         return ""
 
 def ai_response(user_query):
     personality = get_personality()
-    chat_history = get_chat_history()
     memory = get_memory()
 
     prompt = f"""
@@ -73,9 +64,6 @@ def ai_response(user_query):
 
 Your Personality:
 {personality}
-
-Chat History:
-{chat_history}
 
 Your Memory:
 {memory}
@@ -89,6 +77,8 @@ User Query:
             {"role": "system", "content": "You are an AI assistant that follows rules exactly and outputs in Markdown."},
             {"role": "user", "content": prompt}
         ],
+        max_tokens=1000,
+        temperature=0.7,
         model=AVAILABLE_MODELS[0],
     )
-    return chat_completion.choices[0].message.content
+    return chat_completion.choices[0].message.content.strip()
