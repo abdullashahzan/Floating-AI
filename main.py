@@ -20,32 +20,31 @@ import subprocess
 
 CUSTOM_CSS = """
 <style>
-body {
-    font-family: 'Monaco', monospace;
-    font-size: 14px;
-    color: #e6e6e6;
-    margin: 8px;
-    padding:10px;
-    overflow-wrap: break-word;
-}
-pre {
-    background-color: #2e2e2e;
-    padding: 12px;
-    border-radius: 6px;
-    overflow-x: auto;
-}
-code {
-    background-color: #2e2e2e;
-    color: #f8f8f2;
-    padding: 4px 6px;
-    border-radius: 5px;
-}
-ul {
-    padding-left: 25px;
-}
+    body {
+        font-family: Monaco, monospace;
+        font-size: 14px;
+        color: #e6e6e6;
+        margin: 8px;
+        padding: 10px;
+        overflow-wrap: break-word;
+    }
+    pre {
+        background-color: #2e2e2e;
+        padding: 12px;
+        border-radius: 6px;
+        overflow-x: auto;
+    }
+    code {
+        background-color: #2e2e2e;
+        color: #f8f8f2;
+        padding: 4px 6px;
+        border-radius: 5px;
+    }
+    ul {
+        padding-left: 25px;
+    }
 </style>
 """
-
 # -----------------------------
 # Worker
 # -----------------------------
